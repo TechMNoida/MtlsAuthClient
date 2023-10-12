@@ -34,10 +34,13 @@ namespace PocMTLSClient.Api
 
             services.AddTransient<CustomHttpMessageHandler>();
 
-            //var clientCertificateHandler = new HttpClientHandler();
+            var clientCertificateHandler = new HttpClientHandler();
 
-            //var certificate = new X509Certificate2(Path.Combine("C:/git/local.jeinz.pfx"), "1234");
-            //clientCertificateHandler.ClientCertificates.Add(certificate);
+            string certPath = Configuration.GetSection("CertificatePath").Value.ToString();
+            string certPwd = Configuration.GetSection("CertPwd").Value.ToString();
+            var certificate = new X509Certificate2(Path.Combine(certPath), certPwd);
+
+            clientCertificateHandler.ClientCertificates.Add(certificate);
 
 
             services.AddHttpClient("certificateRequired")

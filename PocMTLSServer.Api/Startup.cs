@@ -47,43 +47,59 @@ namespace PocMTLSServer.Api
             services.AddCertificateForwarding(options => { options.CertificateHeader = "X-ARR-ClientCert"; });
 
             // Add certificate authentication so when authorization is performed the user will be created from the certificate
-            services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme).AddCertificate(options =>
-            {
-                options.AllowedCertificateTypes = CertificateTypes.All;
-                options.Events = new CertificateAuthenticationEvents
+            services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme).AddCertificate(
+                options =>
                 {
-                    OnCertificateValidated = context =>
+                    options.AllowedCertificateTypes = CertificateTypes.All;
+                    options.RevocationMode = System.Security.Cryptography.X509Certificates.X509RevocationMode.NoCheck;
+                    options.Events = new CertificateAuthenticationEvents
                     {
-                        var validationService = context.HttpContext.RequestServices
-                            .GetRequiredService<ICertificateValidationService>();
-
-                        if (validationService.ValidateCertificate(context.ClientCertificate))
+                        OnAuthenticationFailed = context =>
                         {
-                            var claims = new[]
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                            logger.LogWarning("Authentication failed: {message} ", context.Exception?.Message);
+                            return Task.CompletedTask;
+                        },
+
+                        OnCertificateValidated = context =>
+                        {
+                            var validationService = context.HttpContext.RequestServices.GetRequiredService<ICertificateValidationService>();
+
+                            if (validationService.ValidateCertificate(context.ClientCertificate))
                             {
-                        new Claim(
-                            ClaimTypes.NameIdentifier,
-                            context.ClientCertificate.Subject,
-                            ClaimValueTypes.String, context.Options.ClaimsIssuer),
-                        new Claim(
-                            ClaimTypes.Name,
-                            context.ClientCertificate.Subject,
-                            ClaimValueTypes.String, context.Options.ClaimsIssuer)
-                    };
+                                var claims = new[]
+                                {
+                                new Claim(
+                                    ClaimTypes.NameIdentifier,
+                                    context.ClientCertificate.Subject,
+                                    ClaimValueTypes.String, context.Options.ClaimsIssuer),
+                                new Claim(
+                                    ClaimTypes.Name,
+                                    context.ClientCertificate.Subject,
+                                    ClaimValueTypes.String, context.Options.ClaimsIssuer)
+                                };
 
-                            context.Principal = new ClaimsPrincipal(
-                                new ClaimsIdentity(claims, context.Scheme.Name));
-                            context.Success();
+                                context.Principal = new ClaimsPrincipal(
+                                    new ClaimsIdentity(claims, context.Scheme.Name));
+                                context.Success();
+                            }
+                            else
+                            {
+                                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                                const string message = "Invalid certificate";
+                                logger.LogWarning(message);
+                                context.Fail(message);
+                            }
+
+                            return Task.CompletedTask;
                         }
-
-                        return Task.CompletedTask;
-                    },
-                    OnAuthenticationFailed = context =>
-                    {
-                        return Task.CompletedTask;
-                    }
-                };
-            });
+                    };
+                })
+                .AddCertificateCache(options =>
+                {
+                    options.CacheSize = 1024;
+                    options.CacheEntryExpiration = TimeSpan.FromMinutes(2);
+                });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "People Service API", Version = "v1" });

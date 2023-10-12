@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,12 +13,16 @@ namespace PocMTLSClient.Api
 {
     public class CustomHttpMessageHandler: HttpClientHandler
     {
-        public CustomHttpMessageHandler()
-        {
-            //code for local development
-            var certificate = new X509Certificate2(Path.Combine("C:/git/poctest.pfx"), "1234");
-            ClientCertificates.Add(certificate);
+        private readonly IConfiguration _configuration;
 
+        public CustomHttpMessageHandler(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            //code for local development
+            string certPath = _configuration.GetSection("CertificatePath").Value.ToString();
+            string certPwd = _configuration.GetSection("CertPwd").Value.ToString();
+            var certificate = new X509Certificate2(certPath, certPwd);
+            ClientCertificates.Add(certificate);
 
             //var keyvaultUrl = $"https://kv-gg-dev-poc.vault.azure.net/";
             //var certificateName = "poctest";

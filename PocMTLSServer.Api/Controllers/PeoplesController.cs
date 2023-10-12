@@ -4,12 +4,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace PocMTLSServer.Api.Controllers
 {
     [ApiController]
-    [Authorize]
     [Route("[controller]")]
     public class PeoplesController : ControllerBase
     {
@@ -26,9 +26,23 @@ namespace PocMTLSServer.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IEnumerable<People> Get()
         {
-            var rng = new Random(); 
+            var rng = new Random();
+            return Enumerable.Range(1, 5).Select(index => new People
+            {
+                Date = DateTime.Now.AddDays(index),
+                TemperatureC = rng.Next(-20, 55),
+                Summary = Summaries[rng.Next(Summaries.Length)]
+            })
+            .ToArray();
+        }
+
+        [HttpGet("Unauthorized")]
+        public IEnumerable<People> GetUnauthorized()
+        {
+            var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new People
             {
                 Date = DateTime.Now.AddDays(index),

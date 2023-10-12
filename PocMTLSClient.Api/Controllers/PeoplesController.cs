@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -20,10 +21,13 @@ namespace PocMTLSClient.Api.Controllers
 
         private readonly ILogger<PeoplesController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
-        public PeoplesController(ILogger<PeoplesController> logger, IHttpClientFactory httpClientFactory)
+        private readonly IConfiguration _configuration;
+
+        public PeoplesController(ILogger<PeoplesController> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -43,7 +47,9 @@ namespace PocMTLSClient.Api.Controllers
         public async Task<IEnumerable<People>> GetAuthorized()
         {
             var httpClient = _httpClientFactory.CreateClient("certificateRequired");
-            var httpResponseMessage = await httpClient.GetAsync("https://pocmtlsserver.local.jeinz/Peoples");
+            string apiUrl = string.Concat(_configuration.GetSection("apiServiceUrl").Value.ToString(), "WeatherForecast");
+            //string apiUrl = @"https://localhost:7269/WeatherForecast";
+            var httpResponseMessage = await httpClient.GetAsync(apiUrl);
 
             if (httpResponseMessage.IsSuccessStatusCode)
             {
@@ -59,7 +65,8 @@ namespace PocMTLSClient.Api.Controllers
         public async Task<IEnumerable<People>> GetUnAuthorized()
         {
             var httpClient = _httpClientFactory.CreateClient("noCertificate");
-            var httpResponseMessage = await httpClient.GetAsync("https://pocmtlsserver.local.jeinz/Peoples");
+            string apiUrl = string.Concat(_configuration.GetSection("apiServiceUrl").Value.ToString(), "WeatherForecast");
+            var httpResponseMessage = await httpClient.GetAsync(apiUrl);
 
 
             if (httpResponseMessage.IsSuccessStatusCode)
