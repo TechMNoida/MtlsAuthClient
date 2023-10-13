@@ -11,6 +11,7 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.ConfigureHttpsDefaults(options =>
         options.ClientCertificateMode = ClientCertificateMode.RequireCertificate);
+        //options.ClientCertificateMode = ClientCertificateMode.NoCertificate);
 });
 
 // Add services to the container.
