@@ -2,16 +2,22 @@ using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using MutualTlsSample.Services;
+using System.Net;
 using System.Security.Claims;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseKestrel(options =>
+options.Listen(IPAddress.Any, 443, listenOptions =>
+                listenOptions.UseHttps("oasisofsolution.pfx", "techm@1234")));
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.ConfigureHttpsDefaults(options =>
         options.ClientCertificateMode = ClientCertificateMode.RequireCertificate);
         //options.ClientCertificateMode = ClientCertificateMode.NoCertificate);
+        //options.ServerCertificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(...);
 });
 
 // Add services to the container.

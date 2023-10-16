@@ -5,8 +5,6 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PocMTLSClient.Api", "PocMTLSClient.Api\PocMTLSClient.Api.csproj", "{18B0ECD7-CEED-4DB4-A837-715A4E204FAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MutualTlsServerAPi", "MutualTlsServerAPi\MutualTlsServerAPi.csproj", "{EB07E272-49CA-4693-93F8-2AD6F3DC38D6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{18B0ECD7-CEED-4DB4-A837-715A4E204FAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18B0ECD7-CEED-4DB4-A837-715A4E204FAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18B0ECD7-CEED-4DB4-A837-715A4E204FAC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB07E272-49CA-4693-93F8-2AD6F3DC38D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB07E272-49CA-4693-93F8-2AD6F3DC38D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB07E272-49CA-4693-93F8-2AD6F3DC38D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB07E272-49CA-4693-93F8-2AD6F3DC38D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
